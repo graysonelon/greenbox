@@ -98,6 +98,13 @@
       font-size: 0.97rem;
     }
     button:hover { transform: translateY(-1px); }
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      background: var(--maroon);
+      margin-top: 10px;
+      width: auto;
+    }
     textarea { min-height: 100px; resize: vertical; }
     .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 18px; }
     .tab {
@@ -118,12 +125,18 @@
       padding: 18px;
       background: #fffdfa;
       margin-bottom: 12px;
+      transition: opacity 0.3s ease;
+    }
+    .request-card.completed {
+      opacity: 0.5;
+      background: #f5f5f5;
     }
     .request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .request-title { font-weight: 800; color: var(--maroon); font-size: 1.05rem; }
     .request-meta { display: grid; gap: 8px; color: var(--muted); font-size: 0.93rem; line-height: 1.5; }
     .success { padding: 16px; background: #f2fbf5; border: 1px solid #d8ebdd; border-radius: 18px; color: #18603b; margin: 16px 0; }
     .status { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #f8edd0; color: #8b6600; }
+    .status.completed { background: #dff1e5; color: #18603b; }
     .help { color: #696969; font-size: 0.88rem; line-height: 1.55; margin-top: 12px; }
   </style>
 </head>
@@ -182,93 +195,6 @@
         </label>
 
         <label>
-          Notes
-          <textarea id="notes" placeholder="Leave outside, text when here, etc."></textarea>
-        </label>
-
-        <button type="submit">Submit Pickup Request</button>
-      </form>
-
-      <div id="success-msg" class="success hidden">✓ Request submitted! View it on the Dasher Board.</div>
-    </div>
-  </main>
-
-  <main id="dasher-section" class="dasher-section hidden">
-    <div class="card">
-      <h2>Live Pickup Requests</h2>
-      <p>All submitted requests appear here in real-time.</p>
-      <div id="requests-list"></div>
-    </div>
-  </main>
-
-  <script>
-    let requests = JSON.parse(localStorage.getItem('greenbox-requests')) || [];
-
-    function switchTab(tab) {
-      document.getElementById('form-section').classList.toggle('hidden', tab !== 'form');
-      document.getElementById('dasher-section').classList.toggle('hidden', tab !== 'dasher');
-      document.getElementById('nav-form').classList.toggle('active', tab === 'form');
-      document.getElementById('nav-dasher').classList.toggle('active', tab === 'dasher');
-      if (tab === 'dasher') refreshDasher();
-    }
-
-    document.getElementById('pickup-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const building = document.getElementById('building').value;
-      const room = document.getElementById('room').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const notes = document.getElementById('notes').value.trim();
-
-      if (!name || !building || !room || !phone) {
-        alert('Please fill out all required fields');
-        return;
-      }
-
-      const request = {
-        id: Date.now(),
-        name,
-        building,
-        room,
-        phone,
-        notes,
-        created_at: new Date().toLocaleString()
-      };
-
-      requests.unshift(request);
-      localStorage.setItem('greenbox-requests', JSON.stringify(requests));
-
-      document.getElementById('success-msg').classList.remove('hidden');
-      this.reset();
-
-      setTimeout(() => {
-        switchTab('dasher');
-      }, 1500);
-    });
-
-    function refreshDasher() {
-      const html = requests.length > 0
-        ? requests.map((r, i) => `
-            <div class="request-card">
-              <div class="request-header">
-                <div class="request-title">${r.building}, Room ${r.room}</div>
-                <div class="status">Request #${i + 1}</div>
-              </div>
-              <div class="request-meta">
-                <div><strong>Name:</strong> ${r.name}</div>
-                <div><strong>Phone:</strong> ${r.phone}</div>
-                ${r.notes ? `<div><strong>Notes:</strong> ${r.notes}</div>` : ''}
-                <div style="color:#999;margin-top:8px;"><small>Submitted: ${r.created_at}</small></div>
-              </div>
-            </div>
-          `).join('')
-        : '<div style="text-align:center;color:#999;padding:40px 20px;">No pickup requests yet. Submit one to get started!</div>';
-
-      document.getElementById('requests-list').innerHTML = html;
-    }
-
-    refreshDasher();
-  </script>
-</body>
-</html>
+          Notes*
+
+        
