@@ -3,55 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elon Green Box Live Ready</title>
+    <link rel="stylesheet" href="styles.css">
+    <title>Green Box Request</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { width: 80%; margin: auto; }
-        /* Add more styling here */
+        body { font-family: Arial, sans-serif; background-color: #f7f7f7; color: #333; }
+        h1 { color: #9b0000; }
+        .hero { background-color: #a92c2c; padding: 20px; color: white; text-align: center; }
+        .form-section { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .tab { cursor: pointer; padding: 10px; background-color: #d9d9d9; border: none; }
+        .active { background-color: #9b0000; color: white; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #cccccc; border-radius: 4px; }
+        button { background-color: #9b0000; color: white; border: none; padding: 10px 20px; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to the Elon Green Box</h1>
-        <form id="pickupForm">
-            <label for="studentName">Student Name:</label>
-            <input type="text" id="studentName" name="studentName" required>
-            <button type="submit">Submit</button>
-        </form>
-        <div id="liveRequestFeed">
+    <div class="hero">
+        <h1>Elon University Green Box</h1>
+        <p>Request your green box delivery</p>
+    </div>
+    <div class="form-section">
+        <div>
+            <button class="tab active" onclick="openTab(event, 'request')">Student Request</button>
+            <button class="tab" onclick="openTab(event, 'dashboard')">Runner Dashboard</button>
+        </div>
+        <div id="request" class="tabcontent">
+            <form id="greenBoxForm" onsubmit="submitRequest(event)">
+                <input type="text" id="firstName" name="firstName" placeholder="First Name" required />
+                <input type="text" id="lastName" name="lastName" placeholder="Last Name" required />
+                <input type="text" id="studentID" name="studentID" placeholder="Student ID" required />
+                <input type="text" id="dormBuilding" name="dormBuilding" placeholder="Dorm/Building" required />
+                <input type="text" id="roomNumber" name="roomNumber" placeholder="Room Number" required />
+                <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Phone Number" required />
+                <input type="number" id="boxCount" name="boxCount" placeholder="Box Count" min="1" required />
+                <textarea id="notes" name="notes" placeholder="Additional Notes"></textarea>
+                <button type="submit">Submit Request</button>
+                <p id="successMessage" style="color: green; display: none;">Request submitted successfully!</p>
+            </form>
+        </div>
+        <div id="dashboard" class="tabcontent" style="display:none;">
+            <!-- Content for Runner Dashboard -->
             <h2>Live Requests</h2>
-            <ul id="requestList"></ul>
+            <div id="liveRequests"></div>
         </div>
     </div>
     <script>
-        document.getElementById('pickupForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const studentName = document.getElementById('studentName').value;
-            // TODO: Add Supabase API integration to submit data
-            fetch('https://api.supabase.io/submit', {
-                method: 'POST',
-                body: JSON.stringify({ studentName }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-        });
-
-        function refreshRequests() {
-            // TODO: Fetch latest requests from Supabase API
-            fetch('https://api.supabase.io/requests')
-                .then(response => response.json())
-                .then(data => {
-                    const requestList = document.getElementById('requestList');
-                    requestList.innerHTML = '';
-                    data.forEach(request => {
-                        const li = document.createElement('li');
-                        li.textContent = request.studentName;
-                        requestList.appendChild(li);
-                    });
-                });
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
         }
 
-        setInterval(refreshRequests, 15000); // Refresh every 15 seconds
-        refreshRequests(); // Initial fetch
+        async function submitRequest(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            const response = await fetch("https://ixeybxsgrutymfquqqsa.functions.supabase.co/green-box/submit", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                document.getElementById('successMessage').style.display = 'block';
+                event.target.reset();
+            }
+            fetchLiveRequests();
+        }
+
+        async function fetchLiveRequests() {
+            const response = await fetch("https://ixeybxsgrutymfquqqsa.functions.supabase.co/green-box/latest");
+            const requests = await response.json();
+            document.getElementById('liveRequests').innerHTML = requests.map(req => `<p>${req.firstName} ${req.lastName} - ${req.boxCount} boxes</p>`).join('');
+        }
+
+        setInterval(fetchLiveRequests, 15000);
     </script>
 </body>
 </html>
