@@ -3,51 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Box Form</title>
+    <title>Elon Green Box Live Ready</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="https://cdn.supabase.io/js/v2.0.0/supabase.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Green Box Request Form</h1>
-        <form id="greenBoxForm" action="https://ixeybxsgrutymfquqqsa.functions.supabase.co/submit" method="POST">
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" required>
-
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" required>
-
-            <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" required>
-
-            <label for="building">Building:</label>
-            <input type="text" id="building" name="building" required>
-
-            <label for="room">Room:</label>
-            <input type="text" id="room" name="room" required>
-
-            <label for="contact">Contact:</label>
-            <input type="text" id="contact" name="contact" required>
-
-            <label for="boxes">Number of Boxes:</label>
-            <input type="number" id="boxes" name="boxes" required>
-
-            <label for="notes">Notes:</label>
-            <textarea id="notes" name="notes"></textarea>
-
-            <button type="submit">Submit Request</button>
+    <header>
+        <h1>Welcome to the Elon Green Box</h1>
+        <div class="hero">
+            <h2>Your green solution for a better planet</h2>
+        </div>
+    </header>
+    <main>
+        <form id="greenbox-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Submit</button>
         </form>
-    </div>
+        <div id="status"></div>
+    </main>
     <script>
-        // Tab functionality for Student Request and Runner Dashboard
-        document.getElementById('studentRequestTab').onclick = function () {
-            document.getElementById('greenBoxForm').style.display = 'block';
-            document.getElementById('runnerDashboard').style.display = 'none';
-        };
-        document.getElementById('runnerDashboardTab').onclick = function () {
-            document.getElementById('greenBoxForm').style.display = 'none';
-            document.getElementById('runnerDashboard').style.display = 'block';
-        };
+        const supabaseUrl = 'YOUR_SUPABASE_URL'; // replace with your Supabase URL
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // replace with your Supabase Anonymous Key
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById('greenbox-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            const { data, error } = await supabase
+                .from('your_table')
+                .insert([{ name, email }]);
+
+            const statusDiv = document.getElementById('status');
+            if (error) {
+                statusDiv.innerHTML = `Error: ${error.message}`;
+            } else {
+                statusDiv.innerHTML = 'Success! Your response has been recorded.';
+            }
+        });
     </script>
 </body>
 </html>
