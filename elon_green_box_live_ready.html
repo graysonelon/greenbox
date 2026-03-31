@@ -3,12 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Box Pickup System</title>
+    <title>Elon Green Box Live Ready</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 80%; margin: auto; }
+        /* Add more styling here */
+    </style>
 </head>
 <body>
-    <h1>Green Box Pickup System</h1>
-    <p>Welcome to the Green Box Pickup System. Here you can schedule pickups for your green boxes.</p>
-    <h2>Current Date and Time (UTC)</h2>
-    <p>2026-03-31 17:08:25</p>
+    <div class="container">
+        <h1>Welcome to the Elon Green Box</h1>
+        <form id="pickupForm">
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" name="studentName" required>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="liveRequestFeed">
+            <h2>Live Requests</h2>
+            <ul id="requestList"></ul>
+        </div>
+    </div>
+    <script>
+        document.getElementById('pickupForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const studentName = document.getElementById('studentName').value;
+            // TODO: Add Supabase API integration to submit data
+            fetch('https://api.supabase.io/submit', {
+                method: 'POST',
+                body: JSON.stringify({ studentName }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        });
+
+        function refreshRequests() {
+            // TODO: Fetch latest requests from Supabase API
+            fetch('https://api.supabase.io/requests')
+                .then(response => response.json())
+                .then(data => {
+                    const requestList = document.getElementById('requestList');
+                    requestList.innerHTML = '';
+                    data.forEach(request => {
+                        const li = document.createElement('li');
+                        li.textContent = request.studentName;
+                        requestList.appendChild(li);
+                    });
+                });
+        }
+
+        setInterval(refreshRequests, 15000); // Refresh every 15 seconds
+        refreshRequests(); // Initial fetch
+    </script>
 </body>
 </html>
