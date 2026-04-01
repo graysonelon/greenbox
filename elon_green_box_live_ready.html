@@ -39,6 +39,7 @@
     .status { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background: #f8edd0; color: #8b6600; }
     .status.done { background: #dff1e5; color: #18603b; }
     .success { padding: 16px; background: #f2fbf5; border: 1px solid #d8ebdd; border-radius: 18px; color: #18603b; margin: 16px 0; }
+    .error { padding: 16px; background: #ffe8e8; border: 1px solid #ffcccc; border-radius: 18px; color: #c0392b; margin: 16px 0; }
   </style>
 </head>
 <body>
@@ -47,7 +48,7 @@
       <div class="brand"><strong>Green Box Pickup</strong></div>
       <nav class="nav">
         <a onclick="switchTab('form')" id="nav-form" class="active">Submit Request</a>
-        <a onclick="switchTab('dasher')" id="nav-dasher">Dasher Board</a>
+        <a onclick="askPassword()" id="nav-dasher">Dasher Board</a>
       </nav>
     </div>
   </header>
@@ -93,12 +94,26 @@
 
   <script>
     let requests = JSON.parse(localStorage.getItem('greenbox-requests')) || [];
+    let dasherUnlocked = false;
+
+    function askPassword() {
+      const password = prompt('Enter Dasher Board password:');
+      if (password === 'GreenBox') {
+        dasherUnlocked = true;
+        switchTab('dasher');
+      } else if (password !== null) {
+        alert('Incorrect password');
+      }
+    }
 
     function switchTab(tab) {
+      if (tab === 'dasher' && !dasherUnlocked) {
+        askPassword();
+        return;
+      }
       document.getElementById('form-section').classList.toggle('hidden', tab !== 'form');
       document.getElementById('dasher-section').classList.toggle('hidden', tab !== 'dasher');
       document.getElementById('nav-form').classList.toggle('active', tab === 'form');
-      document.getElementById('nav-dasher').classList.toggle('active', tab === 'dasher');
       if (tab === 'dasher') refreshDasher();
     }
 
@@ -135,7 +150,7 @@
       localStorage.setItem('greenbox-requests', JSON.stringify(requests));
       document.getElementById('success-msg').classList.remove('hidden');
       this.reset();
-      setTimeout(() => switchTab('dasher'), 1000);
+      setTimeout(() => { document.getElementById('success-msg').classList.add('hidden'); }, 2000);
     });
 
     function refreshDasher() {
